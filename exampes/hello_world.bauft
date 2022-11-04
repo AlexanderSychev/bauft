@@ -1,0 +1,18 @@
+@import "bauft/display"
+
+# Component which contains message to display
+component Message:
+    $value: string
+
+# Entity which contains message component
+entity Program:
+    Message($value = "Hello World")
+
+# System which process "Program" entity
+system Printer:
+    query:
+        select Program into $entity
+    action:
+        @print $entity.Message.$value
+
+@run Printer

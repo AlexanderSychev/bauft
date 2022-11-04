@@ -1,0 +1,24 @@
+component Position:
+    $x: number
+    $y: number
+    $z: number
+
+component Mortal:
+    $health: number
+
+component Actor:
+    $name: string
+
+component Managed:
+
+entity Player:
+    Position($x = 0, $y = 0, $z = 0)
+    Mortal($health = 100)
+    Actor($name = "John Dow")
+    Managed
+
+system Moving:
+    query: select Managed, Position
+    action($entity):
+        $entity.Position.$x
+        $
