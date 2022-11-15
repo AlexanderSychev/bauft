@@ -1,24 +1,64 @@
-component Position:
-    $x: number
-    $y: number
-    $z: number
+import "bauft/display" into display;
 
-component Mortal:
-    $health: number
+create component Position {
+    x: number,
+    x: number,
+    z: number
+};
 
-component Actor:
-    $name: string
+create component Mortal {
+    health: number
+};
 
-component Managed:
+create component Actor {
+    name: string
+};
 
-entity Player:
-    Position($x = 0, $y = 0, $z = 0)
-    Mortal($health = 100)
-    Actor($name = "John Dow")
-    Managed
+create component Managed {};
 
-system Moving:
-    query: select Managed, Position
-    action($entity):
-        $entity.Position.$x
-        $
+create world Game {
+    Player: Position + Mortal + Actor + Managed
+}
+
+create system InitPlayer
+using (
+    select Player as player
+)
+doing {
+    player.Position.x = 0;
+    player.Position.y = 0;
+    player.Position.z = 0;
+    player.Mortal.health = 100;
+    player.Actor.name = "John Dow";
+    alter process Main drop InitPlayer;
+};
+
+create system Moving
+using (
+    select *.(Managed and Position) into movables
+)
+doing {
+    for each movable of movables {
+        movable.Position.x += 0.05;
+    };
+};
+
+create system Printer
+using (
+    select *.(Position and Actor) into values
+)
+doing {
+    for each value of values {
+        display.printf("actor %s position: x = %f, y = %f, z = %f", value.name, value.x, value.y, value.z);
+    };
+};
+
+create process Main
+using world Game
+workflow {
+    InitPlayer
+    then Moving
+    then Printer
+};
+
+run process Main forever;

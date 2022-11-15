@@ -1,18 +1,31 @@
-@import "bauft/display"
+import "bauft/display" into display;
 
 # Component which contains message to display
-component Message:
-    $value: string
+create component Message {
+     value: string
+};
 
-# Entity which contains message component
-entity Program:
-    Message($value = "Hello World")
+# World which contains "MessageBox" entity with "Message" component
+create world Program {
+    MessageBox: Message
+};
 
-# System which process "Program" entity
-system Printer:
-    query:
-        select Program into $entity
-    action:
-        @print $entity.Message.$value
+# System which process "MessageBox" entity
+create system Printer
+using (
+    select MessageBox.Message.value into value
+)
+doing {
+    display.print(value);
+};
 
-@run Printer
+# Create process which initialize world "Program" and defines workflow with "Printer" system which runs at once
+create process Main
+using world Program
+workflow {
+    Printer
+};
+
+run process Main once;
+# run process Main forever;
+# run process Main 20 times;
